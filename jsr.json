@@ -1,0 +1,24 @@
+{
+  "name": "@decomm/ca",
+  "version": "0.1.0",
+  "license": "MIT",
+  "exports": {
+    ".": "./main.ts",
+    "./init": "./init.ts"
+  },
+  "publish": {
+    "include": [
+      "main.ts",
+      "args.ts",
+      "cert.ts",
+      "pem.ts",
+      "store.ts",
+      "init.ts",
+      "ca.sh",
+      "README.md",
+      "LICENSE",
+      "deno.json",
+      "jsr.json"
+    ]
+  }
+}
