@@ -3,24 +3,6 @@
 A local certificate authority for a LAN that will never see Let's Encrypt. Keys stay in `--dir`.
 Nothing phones home.
 
-## Carry-in
-
-On a connected machine, from this repo:
-
-```sh
-deno task compile
-```
-
-Copy this folder (including `bin/ca`) onto the isolated box.
-
-```sh
-./ca.sh init --dir ./ca-data --name "sandbox CA"
-./ca.sh issue --dir ./ca-data --cn box.local --dns box.local --ip 10.0.0.5
-./ca.sh trust --dir ./ca-data --out ./ca.pem
-```
-
-`ca.sh` uses the compiled binary if present, otherwise `deno run`.
-
 ## Commands
 
 | Command              | What                              |
@@ -31,10 +13,56 @@ Copy this folder (including `bin/ca`) onto the isolated box.
 | `show`               | Root subject and PEM              |
 | `trust --out ca.pem` | Trust bundle                      |
 
-Env: `CA_DIR`. Repeat `--dns` / `--ip` as needed.
+`--dir` defaults to `./ca-data`, or `CA_DIR`. Repeat `--dns` / `--ip` as needed.
 
-If Deno is on the box you can skip compile:
+## Folder layout
+
+```
+ca-data/
+  ca.pem                  root certificate
+  ca.key.pem              root key (keep it on the box)
+  issued/
+    box.local.pem         host certificate
+    box.local.key.pem     host key
+    box.local.json        serial, names, expiry
+```
+
+## Carry-in
+
+Init on a connected machine. Compile. Copy the folder. Run dark.
+
+### Init
 
 ```sh
-deno task ca -- init --dir ./ca-data
+deno run -A jsr:@decomm/ca/init ./ca
+cd ca
 ```
+
+### Compile
+
+```sh
+deno task compile
+```
+
+That leaves `bin/ca`. Or from this repo: `deno task compile`.
+
+### Copy
+
+Carry the whole `ca/` folder onto the isolated box — USB, sneakernet,
+[ferry](https://github.com/decomm-tools/ferry). Include `bin/`.
+
+### Run dark
+
+No network. The box never needs to come back online.
+
+```sh
+./ca.sh --dir ./ca-data init --name "sandbox CA"
+./ca.sh --dir ./ca-data issue --cn box.local --dns box.local --ip 10.0.0.5
+./ca.sh --dir ./ca-data list
+./ca.sh --dir ./ca-data trust --out ./ca.pem
+```
+
+Install `ca.pem` as a trusted root on each client.
+
+`ca.sh` uses the compiled binary if present, otherwise `deno run`. The isolated box does not need
+Deno if you compiled first.

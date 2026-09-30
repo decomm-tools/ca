@@ -2,7 +2,7 @@ const HELP = `decomm ca
 
 Copy this tool into a folder you can carry onto an isolated machine.
 
-  deno run --allow-read=. --allow-write=./my-ca ./init.ts ./my-ca
+  deno run -A jsr:@decomm/ca/init ./my-ca
   cd my-ca
   deno task compile
   ./ca.sh init --dir ./ca-data
